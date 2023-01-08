@@ -13,7 +13,7 @@ import com.example.csi_dmce.R
 import com.example.csi_dmce.database.AppDatabase
 import com.example.csi_dmce.utils.Helpers
 
-class Login: AppCompatActivity() {
+class LoginActivity: AppCompatActivity() {
     private lateinit var login_email: EditText
     private lateinit var login_password: EditText
     private lateinit var login_button: Button
@@ -32,27 +32,30 @@ class Login: AppCompatActivity() {
         tv_forgot_password = findViewById(R.id.tv_forgot_password)
 
         tv_forgot_password.setOnClickListener{
-            val intent = Intent(this, ForgotPassword::class.java)
+            val intent = Intent(this, PasswordResetActivity::class.java)
             startActivity(intent)
         }
 
+        //Performing Query
+        val db = AppDatabase.getInstance(this)
+        var user_dao = db.userDao()
+
         login_button.setOnClickListener {
-            var log_email: String = login_email.text.toString()
+            var user_email: String = login_email.text.toString()
             var log_password: String = login_password.text.toString()
-            if(log_email.isEmpty() || log_password.isEmpty()){
+
+            if(user_email.isEmpty() || log_password.isEmpty()){
                 Toast.makeText(applicationContext, "Please fill all the fields.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
-            }
-            else {
-                var utils = Helpers()
-                var log_password_hash: String = utils.get_md5_hash(log_password)
-
-                //Performing Query
-                val db = AppDatabase.getInstance(this)
-                var user_dao = db.userDao()
-                var UserEntity = user_dao.login_function(log_email, log_password_hash)
-                if (!UserEntity) {
-                    Toast.makeText(applicationContext, "Invalid credentials.", Toast.LENGTH_SHORT)
+            } else {
+                val utils = Helpers()
+                val passwd_hash: String = utils.get_md5_hash(log_password)
+                val user_exists: Boolean = user_dao.exists(user_email, passwd_hash)
+                if (!user_exists) {
+                    Toast.makeText(
+                        applicationContext,
+                        "Invalid credentials.",
+                        Toast.LENGTH_SHORT)
                         .show()
                 } else {
                     val intent = Intent(this, Profile::class.java)
@@ -60,11 +63,8 @@ class Login: AppCompatActivity() {
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                     intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
                     Toast.makeText(applicationContext, "Welcome!", Toast.LENGTH_SHORT).show()
-
                 }
             }
-
-
         }
         without_account.setOnClickListener{
             val intent = Intent(this, Dashboard::class.java)

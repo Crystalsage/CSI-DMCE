@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 // NOTE: Increment the version number each time we change the schema.
-@Database(entities = [User::class], version = 5)
+@Database(entities = [User::class], version = 7)
 abstract class AppDatabase: RoomDatabase() {
     abstract fun userDao(): UserDAO
     companion object {

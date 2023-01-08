@@ -2,17 +2,22 @@ package com.example.csi_dmce.auth
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.room.ColumnInfo
+import androidx.room.Ignore
+import androidx.room.PrimaryKey
 import androidx.room.Room
 import com.example.csi_dmce.R
 
 import com.example.csi_dmce.database.AppDatabase
 import com.example.csi_dmce.database.User
 import com.example.csi_dmce.utils.Helpers
+import java.util.UUID
 
 class RegistrationActivity: AppCompatActivity() {
     private lateinit var user_name_box: EditText
@@ -37,10 +42,7 @@ class RegistrationActivity: AppCompatActivity() {
 
         // TODO: Move this in a better place so that we can maintain a singleton pattern.
         // Get DB Instance
-        val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "csi-dmce")
-            .fallbackToDestructiveMigration()
-            .allowMainThreadQueries()
-            .build()
+        val db = AppDatabase.getInstance(this)
         var user_dao = db.userDao()
 
         register_button.setOnClickListener {
@@ -56,16 +58,28 @@ class RegistrationActivity: AppCompatActivity() {
             // If the confirmed password and the password match, then we can finally put the
             // user entry in the database.
             if (user_password == re_user_password) {
-                var user: User = User(0, user_email, passwd_hash)
+                val user = User(
+                    user_id = UUID.randomUUID().toString(),
+                    name=user_name,
+                    email=user_email,
+                    password_hash= passwd_hash,
+                    otp = 0
+                )
+
+                Log.i("USER", "The user id is: " + user.user_id + " email is " + user.email + " with hash is " + user.password_hash)
 
                 // TODO: Add some assertion to make sure we don't get a null reply.
-                user_dao.insert(user)
+                try {
+                    user_dao.insert(user)
+                } catch (e: Throwable) {
+                    e.message?.let { it1 -> Log.i("DATABASE", it1) }
+                }
                 Toast.makeText(applicationContext, "Registered sucessfully!", Toast.LENGTH_SHORT).show()
             }
         }
 
         account_exists.setOnClickListener{
-            val intent = Intent(this, Login::class.java)
+            val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
             Toast.makeText(applicationContext, "Login to continue.", Toast.LENGTH_SHORT).show()
         }

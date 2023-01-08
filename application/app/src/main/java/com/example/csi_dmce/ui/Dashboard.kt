@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.example.csi_dmce.R
-import com.example.csi_dmce.auth.Login
+import com.example.csi_dmce.auth.LoginActivity
 import com.example.csi_dmce.auth.RegistrationActivity
 import com.example.csi_dmce.calendar.CSICalendar
 import com.example.csi_dmce.events.event_page
@@ -30,7 +30,7 @@ class Dashboard: AppCompatActivity() {
 
         btn_login = findViewById(R.id.btn_dashboard_login)
         btn_login.setOnClickListener {
-            val eventIntent = Intent(this, Login::class.java)
+            val eventIntent = Intent(this, LoginActivity::class.java)
             startActivity(eventIntent)
         }
 
